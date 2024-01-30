@@ -1,0 +1,58 @@
+import psutil
+import time
+import os
+from tabulate import tabulate
+
+def get_cpu_stats():
+    return [
+        ["CPU Count", psutil.cpu_count()],
+        ["CPU Usage", f"{psutil.cpu_percent(interval=1)}%"],
+        ["CPU Frequency", f"{psutil.cpu_freq().current}MHz"]
+    ]
+
+def get_memory_stats():
+    vm = psutil.virtual_memory()
+    sm = psutil.swap_memory()
+    return [
+        ["Total Memory", f"{vm.total / (1024**3):.2f}GB"],
+        ["Used Memory", f"{vm.used / (1024**3):.2f}GB"],
+        ["Swap Total", f"{sm.total / (1024**3):.2f}GB"],
+        ["Swap Used", f"{sm.used / (1024**3):.2f}GB"]
+    ]
+
+def get_disk_stats():
+    du = psutil.disk_usage('/')
+    return [
+        ["Total Disk", f"{du.total / (1024**3):.2f}GB"],
+        ["Used Disk", f"{du.used / (1024**3):.2f}GB"],
+        ["Free Disk", f"{du.free / (1024**3):.2f}GB"]
+    ]
+
+def get_network_stats():
+    nio = psutil.net_io_counters()
+    return [
+        ["Bytes Sent", f"{nio.bytes_sent / (1024**2):.2f}MB"],
+        ["Bytes Received", f"{nio.bytes_recv / (1024**2):.2f}MB"]
+    ]
+
+def display_stats():
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print("CPU Stats:")
+    print(tabulate(get_cpu_stats(), headers=["Metric", "Value"]))
+    print("\nMemory Stats:")
+    print(tabulate(get_memory_stats(), headers=["Metric", "Value"]))
+    print("\nDisk Stats:")
+    print(tabulate(get_disk_stats(), headers=["Metric", "Value"]))
+    print("\nNetwork Stats:")
+    print(tabulate(get_network_stats(), headers=["Metric", "Value"]))
+
+def main():
+    try:
+        while True:
+            display_stats()
+            time.sleep(1)  # Update interval
+    except KeyboardInterrupt:
+        print("Monitoring stopped.")
+
+if __name__ == "__main__":
+    main()
